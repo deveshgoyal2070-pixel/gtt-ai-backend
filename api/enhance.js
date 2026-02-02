@@ -1,10 +1,9 @@
 export default async function handler(req, res) {
-  // 🔓 CORS HEADERS (frontend ko allow karne ke liye)
+  // CORS allow
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
-  // Preflight request handle
   if (req.method === "OPTIONS") {
     return res.status(200).end();
   }
@@ -47,15 +46,17 @@ export default async function handler(req, res) {
 
     const data = await groqResponse.json();
 
-    // 🔎 DEBUG INFO RETURN (temporary)
-    return res.status(200).json({
-      debug_status: groqResponse.status,
-      debug_data: data
-    });
+    const result = data?.choices?.[0]?.message?.content;
+
+    if (!result) {
+      return res.status(500).json({ error: "AI returned empty response" });
+    }
+
+    return res.status(200).json({ result });
 
   } catch (error) {
     return res.status(500).json({
-      error: "Server crashed",
+      error: "Server error",
       details: error.message
     });
   }
