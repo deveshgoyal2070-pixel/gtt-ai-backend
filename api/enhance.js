@@ -1,5 +1,5 @@
 export default async function handler(req, res) {
-  // ✅ CORS HEADERS
+  // 🔓 CORS HEADERS (frontend ko allow karne ke liye)
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
@@ -35,7 +35,7 @@ export default async function handler(req, res) {
           "Authorization": `Bearer ${process.env.GROQ_API_KEY}`
         },
         body: JSON.stringify({
-          model: "llama3-8b-8192",
+          model: "llama-3.1-8b-instant",
           messages: [
             { role: "system", content: "You are a helpful writing assistant." },
             { role: "user", content: instruction + "\n\n" + text }
@@ -47,8 +47,10 @@ export default async function handler(req, res) {
 
     const data = await groqResponse.json();
 
+    // 🔎 DEBUG INFO RETURN (temporary)
     return res.status(200).json({
-      result: data.choices?.[0]?.message?.content || "AI error"
+      debug_status: groqResponse.status,
+      debug_data: data
     });
 
   } catch (error) {
